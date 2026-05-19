@@ -16,6 +16,7 @@ const t = content[lang].nav;
       guillermojaume.dev
     </a>
 
+    <!-- Desktop nav -->
     <div class="hidden sm:flex items-center gap-6">
       <nav>
         <ul class="flex items-center gap-6">
@@ -34,7 +35,7 @@ const t = content[lang].nav;
 
       <div class="flex items-center gap-1.5 pl-4 border-l border-zinc-800">
         <a
-          href={lang === 'es' ? '/' : '/'}
+          href="/"
           class:list={[
             'font-mono text-xs font-medium transition-colors duration-150',
             lang === 'es' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300',
@@ -44,7 +45,7 @@ const t = content[lang].nav;
         </a>
         <span class="text-zinc-700 text-xs">·</span>
         <a
-          href={lang === 'en' ? '/en' : '/en'}
+          href="/en"
           class:list={[
             'font-mono text-xs font-medium transition-colors duration-150',
             lang === 'en' ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300',
@@ -54,5 +55,100 @@ const t = content[lang].nav;
         </a>
       </div>
     </div>
+
+    <!-- Mobile: lang switcher + hamburger -->
+    <div class="flex sm:hidden items-center gap-4">
+      <div class="flex items-center gap-1.5">
+        <a
+          href="/"
+          class:list={[
+            'font-mono text-xs font-medium transition-colors duration-150',
+            lang === 'es' ? 'text-zinc-100' : 'text-zinc-500',
+          ]}
+        >
+          ES
+        </a>
+        <span class="text-zinc-700 text-xs">·</span>
+        <a
+          href="/en"
+          class:list={[
+            'font-mono text-xs font-medium transition-colors duration-150',
+            lang === 'en' ? 'text-zinc-100' : 'text-zinc-500',
+          ]}
+        >
+          EN
+        </a>
+      </div>
+
+      <button
+        id="menu-btn"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="text-zinc-400 hover:text-zinc-100 transition-colors duration-150"
+      >
+        <!-- Hamburger icon -->
+        <svg id="icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <!-- Close icon -->
+        <svg id="icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div
+    id="mobile-menu"
+    class="hidden sm:hidden border-t border-zinc-800/60 bg-zinc-950"
+  >
+    <nav class="mx-auto max-w-5xl px-6 py-4">
+      <ul class="flex flex-col gap-1">
+        {t.links.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              data-mobile-link
+              class="flex items-center gap-2 py-2.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors duration-150"
+            >
+              <span class="font-mono text-cyan-400 text-xs">▸</span>
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 </header>
+
+<script>
+  const btn = document.getElementById('menu-btn')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const iconOpen = document.getElementById('icon-open')!;
+  const iconClose = document.getElementById('icon-close')!;
+
+  function openMenu() {
+    menu.classList.remove('hidden');
+    iconOpen.classList.add('hidden');
+    iconClose.classList.remove('hidden');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMenu() {
+    menu.classList.add('hidden');
+    iconOpen.classList.remove('hidden');
+    iconClose.classList.add('hidden');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+
+  btn.addEventListener('click', () => {
+    menu.classList.contains('hidden') ? openMenu() : closeMenu();
+  });
+
+  // Close when a link is tapped
+  document.querySelectorAll('[data-mobile-link]').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+</script>
