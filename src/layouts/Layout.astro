@@ -1,18 +1,21 @@
 ---
 import '../styles/global.css';
+import type { Lang } from '../i18n/content';
 
 interface Props {
+  lang?: Lang;
   title?: string;
   description?: string;
 }
 
 const {
+  lang = 'es',
   title = 'Guillermo Jaume Murciano',
   description = 'Portfolio de Guillermo Jaume Murciano — Técnico en Ciberseguridad y Desarrollador de Software en Barcelona.',
 } = Astro.props;
 ---
 <!doctype html>
-<html lang="es">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

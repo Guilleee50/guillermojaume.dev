@@ -1,57 +1,39 @@
 ---
+import type { Lang } from '../i18n/content';
+import { content } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].about;
 ---
 
 <section id="about" class="py-24 border-t border-zinc-800/50">
   <div class="mx-auto max-w-5xl px-6">
-    <p class="font-mono text-cyan-400 text-sm mb-2">// about</p>
-    <h2 class="text-3xl font-bold text-zinc-100 mb-10">Sobre mí</h2>
+    <p class="font-mono text-cyan-400 text-sm mb-2">{t.tag}</p>
+    <h2 class="text-3xl font-bold text-zinc-100 mb-10">{t.title}</h2>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
       <div class="lg:col-span-2 space-y-4 text-zinc-400 leading-relaxed">
-        <p>
-          Soy un <span class="text-zinc-100 font-medium">Técnico Superior en DAM</span> con experiencia real
-          en desarrollo de software corporativo, actualmente especializándome en
-          <span class="text-zinc-100 font-medium">Ciberseguridad</span>. He participado en proyectos de alta
-          visibilidad como el <span class="text-zinc-100 font-medium">Mobile World Congress</span> y en
-          sistemas críticos del sector sanitario.
-        </p>
-        <p>
-          Mi enfoque es diferenciador: traigo la perspectiva de desarrollador al mundo de la seguridad,
-          lo que me permite entender y proteger infraestructuras, aplicaciones y entornos cloud de forma
-          integral. Próximamente iniciaré el
-          <span class="text-zinc-100 font-medium">Grado en Ingeniería Informática</span> en la UOC.
-        </p>
-        <p>
-          Busco mi primera oportunidad en el sector de la ciberseguridad, especialmente en roles donde
-          pueda combinar mi base técnica en desarrollo con las capacidades ofensivas y defensivas que
-          estoy adquiriendo.
-        </p>
+        {t.paragraphs.map((para) => (
+          <p set:html={para} />
+        ))}
       </div>
 
       <div>
         <div class="p-5 rounded-xl bg-zinc-900 border border-zinc-800 font-mono text-sm">
           <p class="text-zinc-600 text-xs mb-4">~/info.json</p>
           <ul class="space-y-3">
-            <li class="flex gap-3">
-              <span class="text-cyan-400 shrink-0">loc</span>
-              <span class="text-zinc-400">Barcelona, España</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="text-cyan-400 shrink-0">lang</span>
-              <span class="text-zinc-400">ES · CA · EN (B1)</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="text-cyan-400 shrink-0">edu</span>
-              <span class="text-zinc-400">DAM · Ciberseg · Ing. Inf.</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="text-cyan-400 shrink-0">focus</span>
-              <span class="text-zinc-400">Blue Team · DevSecOps</span>
-            </li>
-            <li class="flex gap-3">
-              <span class="text-cyan-400 shrink-0">status</span>
-              <span class="text-cyan-400">open to work</span>
-            </li>
+            {t.info.map((item) => (
+              <li class="flex gap-3">
+                <span class="text-cyan-400 shrink-0">{item.key}</span>
+                <span class:list={[item.accent ? 'text-cyan-400' : 'text-zinc-400']}>
+                  {item.value}
+                </span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

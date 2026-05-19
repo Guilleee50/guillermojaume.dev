@@ -1,4 +1,13 @@
 ---
+import type { Lang } from '../i18n/content';
+import { content } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].hero;
 ---
 
 <section id="hero" class="relative min-h-screen flex items-center overflow-hidden">
@@ -6,16 +15,14 @@
   <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-zinc-950 to-transparent"></div>
 
   <div class="relative z-10 mx-auto max-w-5xl px-6 pt-14 pb-24 w-full">
-    <p class="font-mono text-cyan-400 text-sm mb-5 tracking-wide">$ whoami</p>
+    <p class="font-mono text-cyan-400 text-sm mb-5 tracking-wide">{t.prompt}</p>
 
     <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-100 leading-none mb-5">
       Guillermo<br />Jaume Murciano
     </h1>
 
     <p class="text-xl sm:text-2xl text-zinc-400 font-light mb-8 max-w-xl">
-      Técnico en Ciberseguridad
-      <span class="text-zinc-700 mx-2">&amp;</span>
-      Desarrollador de Software
+      {t.subtitle}
     </p>
 
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-10">
@@ -23,7 +30,7 @@
         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
         </svg>
-        Barcelona, España
+        {t.location}
       </span>
       <span class="text-zinc-700 text-xs">·</span>
       <span class="inline-flex items-center gap-1.5 text-sm text-cyan-400">
@@ -31,7 +38,7 @@
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
         </span>
-        Open to work
+        {t.openToWork}
       </span>
     </div>
 
@@ -44,13 +51,13 @@
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
-        Descargar CV
+        {t.downloadCV}
       </a>
       <a
         href="#contact"
         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-zinc-700 text-zinc-300 font-medium text-sm hover:border-zinc-500 hover:text-zinc-100 transition-colors duration-150"
       >
-        Contacto
+        {t.contact}
       </a>
     </div>
   </div>

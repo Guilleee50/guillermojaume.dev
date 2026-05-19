@@ -1,33 +1,22 @@
 ---
-const experiences = [
-  {
-    company: 'Inetum',
-    role: 'Desarrollador de Software',
-    type: 'Prácticas FP Dual',
-    start: 'Sep 2023',
-    end: 'May 2024',
-    location: 'Barcelona',
-    bullets: [
-      {
-        text: 'Desarrollo fullstack de aplicación web corporativa para gestión de salas de reuniones, presentada y exhibida en el Mobile World Congress (MWC).',
-        tech: ['C#', 'Angular', 'MySQL'],
-      },
-      {
-        text: 'Desarrollo evolutivo y mantenimiento del Sistema Informático de Recetas Electrónicas (SIRE), proyecto de alta criticidad y gran volumen de datos en el sector sanitario.',
-        tech: ['Java'],
-      },
-    ],
-  },
-];
+import type { Lang } from '../i18n/content';
+import { content } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].experience;
 ---
 
 <section id="experience" class="py-24 border-t border-zinc-800/50">
   <div class="mx-auto max-w-5xl px-6">
-    <p class="font-mono text-cyan-400 text-sm mb-2">// experience</p>
-    <h2 class="text-3xl font-bold text-zinc-100 mb-12">Experiencia</h2>
+    <p class="font-mono text-cyan-400 text-sm mb-2">{t.tag}</p>
+    <h2 class="text-3xl font-bold text-zinc-100 mb-12">{t.title}</h2>
 
     <div class="space-y-12">
-      {experiences.map((exp) => (
+      {t.items.map((exp) => (
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
           <div class="sm:col-span-1">
             <p class="font-mono text-xs text-zinc-500 leading-relaxed">
@@ -36,7 +25,7 @@ const experiences = [
             <p class="text-xs text-zinc-600 mt-1">{exp.location}</p>
           </div>
 
-          <div class="sm:col-span-3 pl-0 sm:pl-6 border-l-0 sm:border-l border-zinc-800">
+          <div class="sm:col-span-3 sm:pl-6 sm:border-l border-zinc-800">
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
               <h3 class="text-lg font-semibold text-zinc-100">{exp.company}</h3>
               <span class="font-mono text-xs text-zinc-500 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800">
