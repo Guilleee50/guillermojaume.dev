@@ -1,4 +1,14 @@
 ---
+import type { Lang } from '../i18n/content';
+import { content } from '../i18n/content';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = content[lang].contact;
+
 const links = [
   {
     label: 'Email',
@@ -26,12 +36,9 @@ const links = [
 
 <section id="contact" class="py-24 border-t border-zinc-800/50">
   <div class="mx-auto max-w-5xl px-6">
-    <p class="font-mono text-cyan-400 text-sm mb-2">// contact</p>
-    <h2 class="text-3xl font-bold text-zinc-100 mb-4">Contacto</h2>
-    <p class="text-zinc-400 mb-12 max-w-xl leading-relaxed">
-      Busco mi primera oportunidad en ciberseguridad. Si tienes un rol interesante
-      o simplemente quieres hablar, escríbeme.
-    </p>
+    <p class="font-mono text-cyan-400 text-sm mb-2">{t.tag}</p>
+    <h2 class="text-3xl font-bold text-zinc-100 mb-4">{t.title}</h2>
+    <p class="text-zinc-400 mb-12 max-w-xl leading-relaxed">{t.description}</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-20">
       {links.map((link) => (
@@ -67,9 +74,7 @@ const links = [
     </div>
 
     <div class="text-center pt-8 border-t border-zinc-800/50">
-      <p class="font-mono text-xs text-zinc-600">
-        Diseñado y construido por Guillermo Jaume Murciano · Barcelona, 2025
-      </p>
+      <p class="font-mono text-xs text-zinc-600">{t.footer}</p>
     </div>
   </div>
 </section>
