@@ -1,0 +1,123 @@
+---
+import { render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import { content } from '../../i18n/content';
+import { getPosts, formatDate } from '../../lib/blog';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const lang = post.data.lang;
+const t = content[lang].blog;
+const blogHref = lang === 'es' ? '/blog' : '/en/blog';
+const ogImage = await getImage({ src: post.data.image, width: 1200, height: 630, format: 'jpg' });
+---
+
+<Layout
+  lang={lang}
+  title={`${post.data.title} — Guillermo Jaume Murciano`}
+  description={post.data.description}
+  image={ogImage.src}
+  type="article"
+>
+  <Nav lang={lang} esHref="/blog" enHref="/en/blog" />
+  <main class="pt-32 pb-24">
+    <div class="mx-auto max-w-6xl px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_14rem] lg:gap-16">
+      <article class="min-w-0 max-w-3xl">
+        <a href={blogHref} class="font-mono text-sm text-zinc-500 hover:text-cyan-400 transition-colors duration-150">
+          {t.back}
+        </a>
+
+        <header class="mt-8 mb-10">
+          <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-zinc-500">
+            {formatDate(post.data.date, t.dateLocale)}
+          </time>
+          <h1 class="mt-3 text-3xl sm:text-4xl font-bold text-zinc-100 leading-tight">{post.data.title}</h1>
+          <p class="mt-4 text-zinc-400 leading-relaxed">{post.data.description}</p>
+          <div class="mt-5 flex flex-wrap gap-1.5">
+            {post.data.tags.map((tag) => (
+              <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">
+                {tag}
+              </span>
+            ))}
+          </div>
+          <Image
+            src={post.data.image}
+            alt={post.data.imageAlt}
+            widths={[640, 960, 1200]}
+            sizes="(min-width: 768px) 768px, 100vw"
+            loading="eager"
+            class="mt-8 w-full aspect-[1200/630] object-cover rounded-xl border border-zinc-800"
+          />
+        </header>
+
+        <!-- Índice en móvil / pantallas medianas -->
+        <details class="lg:hidden mb-10 rounded-xl bg-zinc-900 border border-zinc-800 px-5 py-4">
+          <summary class="cursor-pointer font-mono text-sm text-zinc-300">{t.toc}</summary>
+          <div class="mt-4">
+            <TableOfContents headings={headings} title={t.toc} />
+          </div>
+        </details>
+
+        <div
+          class="prose prose-invert prose-zinc max-w-none
+            prose-headings:text-zinc-100 prose-headings:font-semibold prose-headings:scroll-mt-24 prose-h2:mt-12
+            prose-p:text-zinc-400 prose-li:text-zinc-400 prose-strong:text-zinc-100
+            prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline
+            prose-code:text-cyan-300 prose-code:font-normal prose-code:before:content-none prose-code:after:content-none
+            prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-xl
+            prose-th:text-zinc-200 prose-td:text-zinc-400 prose-hr:border-zinc-800"
+          data-post-body
+        >
+          <Content />
+        </div>
+
+        <footer class="mt-16 pt-8 border-t border-zinc-800/60">
+          <a href={blogHref} class="font-mono text-sm text-zinc-500 hover:text-cyan-400 transition-colors duration-150">
+            {t.back}
+          </a>
+        </footer>
+      </article>
+
+      <!-- Índice lateral en escritorio -->
+      <aside class="hidden lg:block">
+        <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pb-8">
+          <TableOfContents headings={headings} title={t.toc} />
+        </div>
+      </aside>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Resalta en el índice la sección que se está leyendo
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]');
+  const headings = document.querySelectorAll<HTMLElement>('[data-post-body] :is(h2, h3)[id]');
+
+  function setActive(id: string) {
+    links.forEach((link) => link.toggleAttribute('data-active', link.dataset.tocLink === id));
+  }
+
+  if (links.length && headings.length) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length) setActive((visible[0].target as HTMLElement).id);
+      },
+      { rootMargin: '-80px 0px -70% 0px' },
+    );
+    headings.forEach((h) => observer.observe(h));
+  }
+
+  // En móvil, cerrar el desplegable al elegir una sección
+  document.querySelectorAll('details [data-toc-link]').forEach((link) => {
+    link.addEventListener('click', () => link.closest('details')?.removeAttribute('open'));
+  });
+</script>
