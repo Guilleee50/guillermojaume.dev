@@ -1,0 +1,19 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import BlogList from '../../components/BlogList.astro';
+import { getPosts } from '../../lib/blog';
+
+const posts = await getPosts('es');
+---
+
+<Layout
+  lang="es"
+  title="Blog — Guillermo Jaume Murciano"
+  description="Blog de Guillermo Jaume Murciano: ciberseguridad, homelab y desarrollo."
+>
+  <Nav lang="es" esHref="/blog" enHref="/en/blog" />
+  <main>
+    <BlogList lang="es" posts={posts} />
+  </main>
+</Layout>

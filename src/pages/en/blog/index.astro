@@ -1,0 +1,20 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import BlogList from '../../../components/BlogList.astro';
+import { getPosts } from '../../../lib/blog';
+
+const posts = await getPosts('en');
+const fallback = posts.length === 0 ? await getPosts('es') : [];
+---
+
+<Layout
+  lang="en"
+  title="Blog — Guillermo Jaume Murciano"
+  description="Blog of Guillermo Jaume Murciano: cybersecurity, homelab and development."
+>
+  <Nav lang="en" esHref="/blog" enHref="/en/blog" />
+  <main>
+    <BlogList lang="en" posts={posts} fallback={fallback} />
+  </main>
+</Layout>

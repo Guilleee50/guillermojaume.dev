@@ -1,0 +1,177 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { Lang } from '../i18n/content';
+import { content } from '../i18n/content';
+import { formatDate } from '../lib/blog';
+
+interface Props {
+  lang: Lang;
+  posts: CollectionEntry<'blog'>[];
+  /** Posts en el otro idioma, para mostrarlos si no hay ninguno en este */
+  fallback?: CollectionEntry<'blog'>[];
+}
+
+const { lang, posts, fallback = [] } = Astro.props;
+const t = content[lang].blog;
+const shown = posts.length > 0 ? posts : fallback;
+
+// Etiquetas de los posts mostrados, de la más usada a la menos usada
+const tagCounts = new Map<string, number>();
+for (const post of shown) {
+  for (const tag of post.data.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+}
+const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+const chip =
+  'font-mono text-xs px-3 py-1.5 rounded-full border transition-colors duration-150 cursor-pointer ' +
+  'border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 ' +
+  'aria-pressed:border-cyan-400/40 aria-pressed:bg-cyan-400/10 aria-pressed:text-cyan-400';
+---
+
+<section class="pt-32 pb-24">
+  <div class="mx-auto max-w-3xl px-6">
+    <p class="font-mono text-cyan-400 text-sm mb-2">{t.tag}</p>
+    <div class="flex items-center justify-between gap-4 mb-4">
+      <h1 class="text-3xl font-bold text-zinc-100">{t.title}</h1>
+
+      {tags.length > 0 && (
+        <div class="relative" data-filter-root>
+          <button
+            type="button"
+            id="filter-toggle"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="filter-panel"
+            aria-label={t.filterLabel}
+            data-filter-toggle
+            class="flex items-center gap-2 font-mono text-xs px-3 py-2 rounded-lg border transition-colors duration-150 cursor-pointer border-zinc-800 text-zinc-400 hover:border-zinc-600 hover:text-zinc-200 data-[active]:border-cyan-400/40 data-[active]:bg-cyan-400/10 data-[active]:text-cyan-400"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4.5h18l-7 8.25v5.25l-4 2v-7.25L3 4.5z" />
+            </svg>
+            <span data-filter-current>{t.filterButton}</span>
+          </button>
+
+          <div
+            id="filter-panel"
+            hidden
+            data-filter-bar
+            role="group"
+            aria-label={t.filterLabel}
+            class="absolute right-0 z-20 mt-2 w-64 p-3 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl shadow-black/40"
+          >
+            <p class="font-mono text-[11px] text-zinc-500 mb-2.5">{t.filterLabel}</p>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class={chip} data-filter="" aria-pressed="true">
+                {t.filterAll} <span class="opacity-60">{shown.length}</span>
+              </button>
+              {tags.map(([tag, count]) => (
+                <button type="button" class={chip} data-filter={tag} aria-pressed="false">
+                  {tag} <span class="opacity-60">{count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+    <p class="text-zinc-400 leading-relaxed mb-10">{t.intro}</p>
+
+    {posts.length === 0 && fallback.length > 0 && t.otherLangNote && (
+      <p class="text-sm text-zinc-500 mb-6">{t.otherLangNote}</p>
+    )}
+
+    {shown.length === 0 ? (
+      <p class="text-zinc-500">{t.empty}</p>
+    ) : (
+      <ul class="space-y-4">
+        {shown.map((post) => (
+          <li data-tags={post.data.tags.join(' ')}>
+            <a
+              href={`/blog/${post.id}`}
+              class="group flex flex-col sm:flex-row gap-5 p-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors duration-150"
+            >
+              <Image
+                src={post.data.image}
+                alt={post.data.imageAlt}
+                widths={[320, 480, 640]}
+                sizes="(min-width: 640px) 240px, 100vw"
+                class="w-full sm:w-60 shrink-0 self-start aspect-[1200/630] object-cover rounded-lg border border-zinc-800 opacity-90 group-hover:opacity-100 transition-opacity duration-150"
+              />
+              <div class="min-w-0 flex flex-col">
+                <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-zinc-500">
+                  {formatDate(post.data.date, t.dateLocale)}
+                </time>
+                <h2 class="mt-1.5 text-base font-semibold text-zinc-100 group-hover:text-cyan-400 transition-colors duration-150">
+                  {post.data.title}
+                </h2>
+                <p class="mt-1.5 text-sm text-zinc-400 leading-relaxed line-clamp-2">{post.data.description}</p>
+                <div class="mt-auto pt-3 flex flex-wrap gap-1.5">
+                  {post.data.tags.map((tag) => (
+                    <span class="font-mono text-[11px] px-2 py-0.5 rounded-full bg-cyan-400/10 text-cyan-400 border border-cyan-400/20">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</section>
+
+<script>
+  // Filtro por etiqueta en el cliente, dentro de un desplegable.
+  // El filtro activo se guarda en la URL (?tag=...).
+  const root = document.querySelector<HTMLElement>('[data-filter-root]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-filter-toggle]');
+  const panel = document.querySelector<HTMLElement>('[data-filter-bar]');
+  const current = document.querySelector<HTMLElement>('[data-filter-current]');
+  const defaultLabel = current?.textContent ?? '';
+  const buttons = panel ? [...panel.querySelectorAll<HTMLButtonElement>('[data-filter]')] : [];
+  const items = document.querySelectorAll<HTMLElement>('li[data-tags]');
+
+  function setOpen(open: boolean) {
+    if (!panel || !toggle) return;
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+  }
+
+  function apply(tag: string) {
+    if (!buttons.some((b) => b.dataset.filter === tag)) tag = '';
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === tag)));
+    items.forEach((li) => {
+      li.hidden = tag !== '' && !(li.dataset.tags ?? '').split(' ').includes(tag);
+    });
+    toggle?.toggleAttribute('data-active', tag !== '');
+    if (current) current.textContent = tag || defaultLabel;
+
+    const url = new URL(location.href);
+    if (tag) url.searchParams.set('tag', tag);
+    else url.searchParams.delete('tag');
+    history.replaceState(null, '', url);
+  }
+
+  toggle?.addEventListener('click', () => setOpen(panel?.hidden ?? false));
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      apply(b.dataset.filter ?? '');
+      setOpen(false);
+      toggle?.focus();
+    }),
+  );
+  document.addEventListener('click', (e) => {
+    if (root && !root.contains(e.target as Node)) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel && !panel.hidden) {
+      setOpen(false);
+      toggle?.focus();
+    }
+  });
+
+  apply(new URLSearchParams(location.search).get('tag') ?? '');
+</script>

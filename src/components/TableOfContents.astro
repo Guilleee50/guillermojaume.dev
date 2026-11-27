@@ -1,0 +1,35 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+  title: string;
+}
+
+const { headings, title } = Astro.props;
+const items = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{items.length > 0 && (
+  <nav aria-label={title}>
+    <p class="font-mono text-xs text-cyan-400 mb-3">// {title.toLowerCase()}</p>
+    <ul class="space-y-1 border-l border-zinc-800">
+      {items.map((h) => (
+        <li>
+          <a
+            href={`#${h.slug}`}
+            data-toc-link={h.slug}
+            class:list={[
+              '-ml-px block border-l py-1 text-sm leading-snug transition-colors duration-150',
+              'border-transparent text-zinc-500 hover:text-zinc-200 hover:border-zinc-600',
+              'data-[active]:border-cyan-400 data-[active]:text-cyan-400',
+              h.depth === 3 ? 'pl-7' : 'pl-4',
+            ]}
+          >
+            {h.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
